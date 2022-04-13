@@ -47,12 +47,16 @@ const configuration = {
   ],
 };
 
-export default function VideoTest({route}: RootStackScreenProps<'CallWebRtc'>) {
+export default function VideoTest({
+  navigation,
+  route,
+}: RootStackScreenProps<'CallWebRtc'>) {
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [gettingCall, setGetTingCall] = useState(false);
 
   const [roomId, setRoomId] = useState<string>(route.params.roomId);
+  const [status, setStatus] = useState<string>(route.params.status);
 
   const pc = useRef<RTCPeerConnection>();
   const connecting = useRef(false);
@@ -72,6 +76,7 @@ export default function VideoTest({route}: RootStackScreenProps<'CallWebRtc'>) {
           if (data === undefined) {
             console.log('data underfined');
             setGetTingCall(false);
+            hangup();
             return;
           }
           if (data !== undefined) {
@@ -130,6 +135,7 @@ export default function VideoTest({route}: RootStackScreenProps<'CallWebRtc'>) {
               setLocalStream(undefined);
               setRemoteStream(undefined);
               setRoomId('');
+              hangup();
             }
             // Helper function
           });
@@ -140,6 +146,7 @@ export default function VideoTest({route}: RootStackScreenProps<'CallWebRtc'>) {
       subscribe();
       subscribeDelete();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gettingCall, localStream, roomId]);
   const setupWebRtc = async () => {
     pc.current = new RTCPeerConnection(configuration);
@@ -231,12 +238,14 @@ export default function VideoTest({route}: RootStackScreenProps<'CallWebRtc'>) {
    */
   const hangup = async () => {
     setGetTingCall(false);
+    setStatus('');
     connecting.current = false;
     firestoreCleanUp();
     streamCleanUp();
     if (pc.current) {
       pc.current.close();
     }
+    navigation.goBack();
   };
 
   const firestoreCleanUp = async () => {
@@ -293,6 +302,14 @@ export default function VideoTest({route}: RootStackScreenProps<'CallWebRtc'>) {
       });
     }
   };
+  if (status === 'call') {
+    setStatus('');
+    create();
+  }
+  if (status === 'answer') {
+    setStatus('');
+    join();
+  }
 
   // hiển thị màn hình chờ
   if (gettingCall) {

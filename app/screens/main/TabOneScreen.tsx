@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 
 import {Text, View} from '../../components/Themed';
@@ -6,12 +6,14 @@ import {useAppDispatch, useAppSelector} from '../../redux/store/hooks';
 import {RootTabScreenProps} from '../../navigation/types';
 //import axios, { urlDetail } from "../../utils/api/apiLink";
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-import CongViec from '../../components/CongViec';
+import TienIch from '../../components/TienIch';
 import {tintColorLight} from '../../constants/Colors';
 import ApiRequest from '../../utils/api/Main/ApiRequest';
 import {logOut} from '../../redux/features/auth/authSlices';
 
-export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
+export default function TabOneScreen({
+  navigation,
+}: RootTabScreenProps<'TabOne'>) {
   // const tag = 'TabOneScreen';
   const {token} = useAppSelector(state => state.auth);
   const [detailUser, setDetailUser] = useState<any>({});
@@ -27,6 +29,12 @@ export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
         });
     }
   }, [dispatch, token]);
+  const openWebRtc = useCallback(
+    (roomId: string, status: 'call' | 'answer') => {
+      navigation.navigate('CallWebRtc', {roomId, status: status});
+    },
+    [navigation],
+  );
   return (
     <View style={styles.container}>
       <View style={styles.headerView}>
@@ -42,7 +50,7 @@ export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
           />
         </TouchableOpacity>
       </View>
-      <CongViec />
+      <TienIch openWebRtc={openWebRtc} />
     </View>
   );
 }

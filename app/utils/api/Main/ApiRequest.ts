@@ -15,6 +15,10 @@ const urlGetTienichAnninhByNguoidung =
   '/CongViec/get-list-congviec-by-system-anninh?v=1.0';
 
 const urlGetListNoti = '/Noti/get-list-noti?v=1.0';
+const urlGetTienichByNguoidung = '/TienIch/get-list-tienich-by-nguoidung?v=1.0';
+const urlSendNotiSoS = (idTienIch: string, roomId: string): string => {
+  return `/Noti/SendNoti-SoS?idti=${idTienIch}&roomId=${roomId}&v=1.0`;
+};
 
 export default class ApiRequest {
   // export const host = 'http://e874-113-185-51-101.ngrok.io'
@@ -103,6 +107,46 @@ export default class ApiRequest {
     console.log('urlRegister ', urlRegister);
     const res = await axios.post(urlRegister, input);
     console.log(res.data);
+    return res.data as ExcuteResult;
+  };
+
+  static GetTienichByNguoidung = async (
+    token: string,
+  ): Promise<ExcuteResult> => {
+    const tag = 'GetTienichByNguoidung';
+    const url = urlGetTienichByNguoidung;
+    console.log(`${tag} url:`, url);
+
+    const config = {
+      headers: {
+        Authorization: `bearer ${token}`,
+        accept: 'text/plain',
+      },
+    };
+
+    const res = await axios.get(url, config);
+    console.log(`${tag} data:`, res.data);
+    return res.data as ExcuteResult;
+  };
+
+  static SendNotiSoS = async (data: {
+    idTienich: string;
+    roomId: string;
+    token: string;
+  }): Promise<ExcuteResult> => {
+    const tag = 'SendNotiSoS';
+    const url = urlSendNotiSoS(data.idTienich, data.roomId);
+    console.log(`${tag} url:`, url);
+
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `bearer ${data.token}`,
+        accept: 'text/plain',
+      },
+    };
+
+    const res = await axios.get(url, config);
+    console.log(`${tag} data:`, res.data);
     return res.data as ExcuteResult;
   };
 }
