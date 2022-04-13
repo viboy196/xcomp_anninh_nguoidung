@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "xcomp_anninh_nhanVien.app"
-               BlueprintName = "xcomp_anninh_nhanVien"
-               ReferencedContainer = "container:xcomp_anninh_nhanVien.xcodeproj">
+               BuildableName = "xcomp_anninh_nguoidung.app"
+               BlueprintName = "xcomp_anninh_nguoidung"
+               ReferencedContainer = "container:xcomp_anninh_nguoidung.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "xcomp_anninh_nhanVienTests.xctest"
-               BlueprintName = "xcomp_anninh_nhanVienTests"
-               ReferencedContainer = "container:xcomp_anninh_nhanVien.xcodeproj">
+               BuildableName = "xcomp_anninh_nguoidungTests.xctest"
+               BlueprintName = "xcomp_anninh_nguoidungTests"
+               ReferencedContainer = "container:xcomp_anninh_nguoidung.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "xcomp_anninh_nhanVien.app"
-            BlueprintName = "xcomp_anninh_nhanVien"
-            ReferencedContainer = "container:xcomp_anninh_nhanVien.xcodeproj">
+            BuildableName = "xcomp_anninh_nguoidung.app"
+            BlueprintName = "xcomp_anninh_nguoidung"
+            ReferencedContainer = "container:xcomp_anninh_nguoidung.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "xcomp_anninh_nhanVien.app"
-            BlueprintName = "xcomp_anninh_nhanVien"
-            ReferencedContainer = "container:xcomp_anninh_nhanVien.xcodeproj">
+            BuildableName = "xcomp_anninh_nguoidung.app"
+            BlueprintName = "xcomp_anninh_nguoidung"
+            ReferencedContainer = "container:xcomp_anninh_nguoidung.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

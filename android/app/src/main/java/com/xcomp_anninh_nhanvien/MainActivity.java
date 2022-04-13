@@ -1,4 +1,4 @@
-package com.xcomp_anninh_nhanvien;
+package com.xcomp_anninh_nguoidung;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
@@ -14,7 +14,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "xcomp_anninh_nhanVien";
+    return "xcomp_anninh_nguoidung";
   }
 
   /**

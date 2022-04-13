@@ -4,7 +4,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 platform :ios, '11.0'
 install! 'cocoapods', :deterministic_uuids => false
 
-target 'xcomp_anninh_nhanVien' do
+target 'xcomp_anninh_nguoidung' do
   config = use_native_modules!
 
   # Flags change depending on the env values.
@@ -23,7 +23,7 @@ target 'xcomp_anninh_nhanVien' do
 
   pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
 
-  target 'xcomp_anninh_nhanVienTests' do
+  target 'xcomp_anninh_nguoidungTests' do
     inherit! :complete
     # Pods for testing
   end

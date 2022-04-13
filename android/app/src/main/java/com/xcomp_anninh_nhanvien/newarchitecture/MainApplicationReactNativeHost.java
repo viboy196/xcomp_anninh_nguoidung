@@ -1,4 +1,4 @@
-package com.xcomp_anninh_nhanvien.newarchitecture;
+package com.xcomp_anninh_nguoidung.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.xcomp_anninh_nhanvien.BuildConfig;
-import com.xcomp_anninh_nhanvien.newarchitecture.components.MainComponentsRegistry;
-import com.xcomp_anninh_nhanvien.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.xcomp_anninh_nguoidung.BuildConfig;
+import com.xcomp_anninh_nguoidung.newarchitecture.components.MainComponentsRegistry;
+import com.xcomp_anninh_nguoidung.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

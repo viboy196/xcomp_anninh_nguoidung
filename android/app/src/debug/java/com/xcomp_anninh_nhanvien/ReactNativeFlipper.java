@@ -4,7 +4,7 @@
  * <p>This source code is licensed under the MIT license found in the LICENSE file in the root
  * directory of this source tree.
  */
-package com.xcomp_anninh_nhanvien;
+package com.xcomp_anninh_nguoidung;
 
 import android.content.Context;
 import com.facebook.flipper.android.AndroidFlipperClient;
