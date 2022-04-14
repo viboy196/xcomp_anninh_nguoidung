@@ -23,7 +23,7 @@ import RegisterScreen from '../screens/register';
 // import {addNotification} from '../redux/features/notification/NotificationSlice';
 import {/*useAppDispatch ,*/ useAppSelector} from '../redux/store/hooks';
 
-import VideoTest from '../test/VideoTest';
+import VideoTest from '../components/Video';
 // import {useRef, useState} from 'react';
 
 export default function Navigation({
@@ -34,6 +34,7 @@ export default function Navigation({
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
+      independent={true}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RootNavigator />
     </NavigationContainer>
@@ -72,7 +73,7 @@ function RootNavigator() {
   //     }
   //   }, [notificationData.token, auth.token]);
 
-  console.log('RootNavigator', auth);
+  // console.log('RootNavigator auth', auth.);
 
   return (
     <Stack.Navigator>

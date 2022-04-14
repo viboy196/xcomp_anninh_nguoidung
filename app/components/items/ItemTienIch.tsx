@@ -7,7 +7,7 @@ import ApiRequest from '../../utils/api/Main/ApiRequest';
 import uuid from 'react-native-uuid';
 type Props = {
   ItemTienIch?: any;
-  openWebRtc: (roomId: string, status: 'call' | 'answer') => void;
+  openWebRtc: (roomId: string) => void;
 };
 
 const ItemTienIch = (props: Props) => {
@@ -15,7 +15,7 @@ const ItemTienIch = (props: Props) => {
 
   console.log('loaiTienIch', data.loaiTienIch);
   const {token} = useAppSelector(state => state.auth);
-  const roomId = uuid.v4() as string;
+  const [roomId, setRoomId] = useState(uuid.v4() as string);
   const sendNoti = useCallback(() => {
     if (data.idTienIch && token) {
       ApiRequest.SendNotiSoS({
@@ -67,8 +67,9 @@ const ItemTienIch = (props: Props) => {
             }}>
             <TouchableOpacity
               onPress={() => {
+                setRoomId(uuid.v4() as string);
                 sendNoti();
-                props.openWebRtc(roomId, 'call');
+                props.openWebRtc(roomId);
               }}>
               <View
                 style={{

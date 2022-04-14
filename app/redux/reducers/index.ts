@@ -5,6 +5,7 @@ import authNotificationReducer from '../features/notification/AuthNotificationSl
 
 import authReducer from '../features/auth/authSlices';
 import registerReducer from '../features/register/registerSlices';
+import stream from '../features/Webrtc/streamSlices';
 
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {persistStore, persistReducer} from 'redux-persist';
@@ -13,5 +14,6 @@ export default combineReducers({
   auth: authReducer,
   register: registerReducer,
   authNotification: authNotificationReducer,
+  stream: stream,
   //   notification: notificationReducer,
 });

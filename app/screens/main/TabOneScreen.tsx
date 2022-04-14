@@ -10,10 +10,9 @@ import TienIch from '../../components/TienIch';
 import {tintColorLight} from '../../constants/Colors';
 import ApiRequest from '../../utils/api/Main/ApiRequest';
 import {logOut} from '../../redux/features/auth/authSlices';
-
-export default function TabOneScreen({
-  navigation,
-}: RootTabScreenProps<'TabOne'>) {
+import {WebRtcServices} from '../../services/WebRtcServcies';
+import {setWebRtcServices} from '../../redux/features/Webrtc/streamSlices';
+export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
   // const tag = 'TabOneScreen';
   const {token} = useAppSelector(state => state.auth);
   const [detailUser, setDetailUser] = useState<any>({});
@@ -30,10 +29,19 @@ export default function TabOneScreen({
     }
   }, [dispatch, token]);
   const openWebRtc = useCallback(
-    (roomId: string, status: 'call' | 'answer') => {
-      navigation.navigate('CallWebRtc', {roomId, status: status});
+    async (roomId: string) => {
+      // navigation.navigate('CallWebRtc', {roomId, status: status});
+      const _webRtcService = new WebRtcServices({
+        dispatch,
+        roomId,
+      });
+      await _webRtcService.create();
+      dispatch(setWebRtcServices({webRtcServices: _webRtcService}));
+      // if (reduxSteam.webRtcServices) {
+      //   await reduxSteam.webRtcServices.create();
+      // }
     },
-    [navigation],
+    [dispatch],
   );
   return (
     <View style={styles.container}>

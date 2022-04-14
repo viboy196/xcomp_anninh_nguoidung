@@ -9,7 +9,7 @@ import {useAppDispatch, useAppSelector} from '../redux/store/hooks';
 import ApiRequest from '../utils/api/Main/ApiRequest';
 import {logOut} from '../redux/features/auth/authSlices';
 type Props = {
-  WebRtc: (roomId: string) => void;
+  WebRtc: (roomId: string, status: 'call' | 'answer') => void;
 };
 import uuid from 'react-native-uuid';
 

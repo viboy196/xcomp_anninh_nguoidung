@@ -4,7 +4,7 @@ import {View, Text} from '../Themed';
 // import {useAppDispatch} from '../../redux/store/hooks';
 type Props = {
   item: any;
-  WebRtc: (roomId: string) => void;
+  WebRtc: (roomId: string, status: 'call' | 'answer') => void;
 };
 const ItemNotification = (props: Props) => {
   // const dispatch = useAppDispatch();
@@ -23,7 +23,7 @@ const ItemNotification = (props: Props) => {
           const _item = {...item, isClick: true};
           setItem(_item);
           console.log(_item);
-          props.WebRtc(_item.roomId);
+          props.WebRtc(_item.roomId, 'call');
         }
       }}
       style={{

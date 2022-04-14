@@ -5,7 +5,7 @@ import ApiRequest from '../utils/api/Main/ApiRequest';
 import ItemTienIch from './items/ItemTienIch';
 import {Text, View} from './Themed';
 type Props = {
-  openWebRtc: (roomId: string, status: 'call' | 'answer') => void;
+  openWebRtc: (roomId: string) => void;
 };
 const TienIch = (props: Props) => {
   const tag = 'TienIch';
