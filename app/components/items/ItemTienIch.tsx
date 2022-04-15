@@ -1,10 +1,13 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Text, View} from '../Themed';
 
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity, Vibration} from 'react-native';
 import {useAppSelector} from '../../redux/store/hooks';
 import ApiRequest from '../../utils/api/Main/ApiRequest';
 import uuid from 'react-native-uuid';
+
+import SystemSetting from 'react-native-system-setting';
+import {KeyServices} from '../../services/KeyServices';
 type Props = {
   ItemTienIch?: any;
   openWebRtc: (roomId: string) => void;
@@ -16,6 +19,27 @@ const ItemTienIch = (props: Props) => {
   console.log('loaiTienIch', data.loaiTienIch);
   const {token} = useAppSelector(state => state.auth);
   const [roomId, setRoomId] = useState(uuid.v4() as string);
+
+  useEffect(() => {
+    const volumeListener = SystemSetting.addVolumeListener(_data => {
+      if (KeyServices.on) {
+        KeyServices.numkey += 1;
+      }
+      console.log('KeyServices.numkey', KeyServices.numkey);
+      if (KeyServices.numkey > 5) {
+        Vibration.vibrate();
+        setRoomId(uuid.v4() as string);
+        sendNoti();
+        props.openWebRtc(roomId);
+        KeyServices.numkey = 0;
+        KeyServices.on = false;
+      }
+    });
+    return () => {
+      SystemSetting.removeVolumeListener(volumeListener);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props, roomId]);
   const sendNoti = useCallback(() => {
     if (data.idTienIch && token) {
       ApiRequest.SendNotiSoS({

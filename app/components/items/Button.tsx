@@ -1,7 +1,7 @@
 import {TouchableOpacity, StyleSheet, StyleProp, ViewStyle} from 'react-native';
 import React from 'react';
 import {View} from '../Themed';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 type Props = {
   onPress: () => void;

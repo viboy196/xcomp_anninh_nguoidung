@@ -16,6 +16,17 @@ import store, {persistor} from './redux/store/store';
 import {StatusBar} from 'react-native';
 import {tintColorLight} from './constants/Colors';
 export default function App() {
+  //get the current volume
+  // listen the volume changing if you need
+  //get the current volume
+
+  // // change the volume
+  // SystemSetting.setVolume(0.5);
+
+  // listen the volume changing if you need
+
+  //remove listener when you need it no more
+
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
