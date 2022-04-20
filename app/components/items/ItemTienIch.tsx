@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Text, View} from '../Themed';
 
-import {StyleSheet, TouchableOpacity, Vibration} from 'react-native';
+import {Alert, StyleSheet, TouchableOpacity, Vibration} from 'react-native';
 import {useAppSelector} from '../../redux/store/hooks';
 import ApiRequest from '../../utils/api/Main/ApiRequest';
 import uuid from 'react-native-uuid';
@@ -33,6 +33,7 @@ const ItemTienIch = (props: Props) => {
         props.openWebRtc(roomId);
         KeyServices.numkey = 0;
         KeyServices.on = false;
+        Alert.alert('đã gọi trợ giúp');
       }
     });
     return () => {

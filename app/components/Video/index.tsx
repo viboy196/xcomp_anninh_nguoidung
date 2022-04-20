@@ -5,7 +5,7 @@ import Button from '../items/Button';
 import {View} from '../Themed';
 import {RootStackScreenProps} from '../../navigation/types';
 import IncallManager from 'react-native-incall-manager';
-import {WebRtcServices} from '../../services/WebRtcServices';
+import {WebRtcServices} from '../../services/WebRTCService1';
 // import {Dimensions} from 'react-native';
 // type Props = {
 //   hangup: () => void;

@@ -13,8 +13,8 @@ import {AppName} from '../../utils/AppType';
 
 const Login = ({navigation}: RootStackScreenProps<'Login'>) => {
   const dispatch = useAppDispatch();
-  const [textPhone, setTextPhone] = useState('0981481527');
-  const [textPassword, setTextPassword] = useState('1');
+  const [textPhone, setTextPhone] = useState('0384892305');
+  const [textPassword, setTextPassword] = useState('a');
   return (
     <View style={styles.container}>
       <View style={styles.textHeaderBackground}>

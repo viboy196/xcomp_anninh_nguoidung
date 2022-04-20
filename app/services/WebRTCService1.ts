@@ -18,20 +18,24 @@ const configuration = {
     },
   ],
 };
-// const configuration = {iceServers: [{url: 'stun:171.244.133.171:3478'}]};
+
 export class WebRtcServices {
   static instead?: WebRtcServices;
   #localStream?: MediaStream;
   #RemoteStream?: MediaStream;
-  #pc: RTCPeerConnection;
   #configuration: any;
   #roomId: string;
   #cRef: FirebaseFirestoreTypes.DocumentReference<FirebaseFirestoreTypes.DocumentData>;
-
+  #connections: Array<RTCPeerConnection>;
+  #current: number;
+  #peerConnection: RTCPeerConnection;
+  #hangupSuccess?: () => void;
   constructor(input: {roomId: string}) {
     this.#roomId = input.roomId;
     this.#configuration = configuration;
-    this.#pc = new RTCPeerConnection(this.#configuration);
+    this.#peerConnection = new RTCPeerConnection(this.#configuration);
+    this.#connections = [this.#peerConnection];
+    this.#current = 0;
     this.#cRef = firebase
       .firestore()
       .collection('meet')
@@ -39,30 +43,6 @@ export class WebRtcServices {
 
     WebRtcServices.instead = this;
   }
-
-  #setupWebRtc = async () => {
-    if (WebRtcServices.instead) {
-      // lấy luồng stream âm thanh và video
-      const stream = await WebRtcServices.instead.#getStream({isFront: true});
-      if (stream) {
-        // setLocalStream(stream);
-        WebRtcServices.instead.#localStream = stream;
-        WebRtcServices.instead.#pc.addStream(stream);
-      }
-      WebRtcServices.instead.#pc.onaddstream = e => {
-        const _e = e as any;
-        const _stream = _e.stream as MediaStream;
-        console.log('onaddstream _stream', _stream.toURL());
-
-        if (_stream) {
-          // setRemoteStream(_stream);
-          if (WebRtcServices.instead) {
-            WebRtcServices.instead.#RemoteStream = _stream;
-          }
-        }
-      };
-    }
-  };
   getLocalStream = (): MediaStream | undefined => {
     return WebRtcServices.instead
       ? WebRtcServices.instead.#localStream
@@ -82,12 +62,14 @@ export class WebRtcServices {
         'caller',
         'callee',
       );
-      if (WebRtcServices.instead.#pc) {
+      if (
+        WebRtcServices.instead.#connections[WebRtcServices.instead.#current]
+      ) {
         // create the offer for the call
-        const offer = (await WebRtcServices.instead.#pc.createOffer(
+        const offer = (await WebRtcServices.instead.#peerConnection.createOffer(
           {},
         )) as RTCSessionDescription;
-        WebRtcServices.instead.#pc.setLocalDescription(offer);
+        WebRtcServices.instead.#peerConnection.setLocalDescription(offer);
 
         const cWithOffer = {
           offer: {
@@ -96,13 +78,19 @@ export class WebRtcServices {
           },
         };
 
-        WebRtcServices.instead.#cRef.set(cWithOffer);
+        if (WebRtcServices.instead.#current === 0) {
+          WebRtcServices.instead.#cRef.set(cWithOffer);
+        } else {
+          WebRtcServices.instead.#cRef.update(cWithOffer);
+        }
       }
     }
   };
   hangup = async () => {
     if (WebRtcServices.instead) {
-      WebRtcServices.instead.#pc.close();
+      WebRtcServices.instead.#connections[
+        WebRtcServices.instead.#current
+      ].close();
 
       await WebRtcServices.instead.#firestoreCleanUp();
       if (WebRtcServices.instead.#localStream) {
@@ -119,72 +107,9 @@ export class WebRtcServices {
       WebRtcServices.instead = undefined;
     }
   };
-  #hangupSuccess?: () => void;
   setHangupSuccess = (input?: {navigate: () => void}) => {
     if (WebRtcServices.instead) {
       WebRtcServices.instead.#hangupSuccess = input?.navigate;
-    }
-  };
-  join = async (input: {success: () => void; failer: () => void}) => {
-    if (WebRtcServices.instead) {
-      console.log('join zoom ....');
-      const offer = (await WebRtcServices.instead.#cRef.get()).data()?.offer;
-      console.log('doc', `chatID_${WebRtcServices.instead.#roomId}`);
-
-      if (offer) {
-        await WebRtcServices.instead.#setupWebRtc();
-
-        WebRtcServices.instead.#collectIceCandidates(
-          WebRtcServices.instead.#cRef,
-          'callee',
-          'caller',
-        );
-        if (WebRtcServices.instead.#pc) {
-          WebRtcServices.instead.#pc.setRemoteDescription(
-            new RTCSessionDescription(offer),
-          );
-
-          // create answer for the call
-          // update document with answer
-          const answer =
-            (await WebRtcServices.instead.#pc.createAnswer()) as RTCSessionDescription;
-          WebRtcServices.instead.#pc.setLocalDescription(answer);
-          const cWithAnswer = {
-            answer: {
-              type: answer.type,
-              sdp: answer.sdp,
-            },
-          };
-          WebRtcServices.instead.#cRef.update(cWithAnswer);
-          input.success();
-        }
-      } else {
-        console.log('đầu dây không tồn tại');
-        input.failer();
-        WebRtcServices.instead.hangup();
-      }
-    }
-  };
-  setConfiguration(_configuration: any) {
-    if (WebRtcServices.instead) {
-      WebRtcServices.instead.#configuration = _configuration;
-      WebRtcServices.instead.#pc = new RTCPeerConnection(
-        WebRtcServices.instead.#configuration,
-      );
-    }
-  }
-  setSpeaker = (isSpeaker: boolean) => {
-    if (WebRtcServices.instead) {
-      WebRtcServices.instead.#pc
-        .getLocalStreams()[0]
-        .getAudioTracks()[0].enabled = isSpeaker;
-    }
-  };
-  setVideo = (isvideo: boolean) => {
-    if (WebRtcServices.instead) {
-      WebRtcServices.instead.#pc
-        .getLocalStreams()[0]
-        .getVideoTracks()[0].enabled = isvideo;
     }
   };
   #collectIceCandidates = async (
@@ -194,13 +119,17 @@ export class WebRtcServices {
   ) => {
     if (WebRtcServices.instead) {
       const candidateCollection = mReft.collection(localName);
-      if (WebRtcServices.instead.#pc) {
+      if (
+        WebRtcServices.instead.#connections[WebRtcServices.instead.#current]
+      ) {
         // lắng nghe sự kiện có stream vào connection
 
         // khi có sự kiện icecandidate
         // thêm môt ice candidate vào firestore
 
-        WebRtcServices.instead.#pc.onicecandidate = event => {
+        WebRtcServices.instead.#connections[
+          WebRtcServices.instead.#current
+        ].onicecandidate = event => {
           const _event = event as any;
           console.log('on icecandidate ', _event.candidate);
           if (_event.candidate) {
@@ -212,14 +141,27 @@ export class WebRtcServices {
           const answer = data?.answer;
           if (WebRtcServices.instead) {
             if (
-              WebRtcServices.instead.#pc &&
-              !WebRtcServices.instead.#pc.remoteDescription &&
+              !WebRtcServices.instead.#connections[
+                WebRtcServices.instead.#current
+              ].remoteDescription &&
               data &&
               answer
             ) {
-              WebRtcServices.instead.#pc.setRemoteDescription(
-                new RTCSessionDescription(answer),
+              WebRtcServices.instead.#connections[
+                WebRtcServices.instead.#current
+              ].setRemoteDescription(new RTCSessionDescription(answer));
+            } else if (
+              WebRtcServices.instead.#connections[
+                WebRtcServices.instead.#current
+              ].remoteDescription &&
+              data &&
+              answer
+            ) {
+              WebRtcServices.instead.#current++;
+              WebRtcServices.instead.#connections.push(
+                WebRtcServices.instead.#peerConnection,
               );
+              WebRtcServices.instead.create();
             }
           }
         });
@@ -230,7 +172,9 @@ export class WebRtcServices {
             if (WebRtcServices.instead) {
               if (change.type === 'added') {
                 const candidate = new RTCIceCandidate(change.doc.data());
-                WebRtcServices.instead.#pc.addIceCandidate(candidate);
+                WebRtcServices.instead.#connections[
+                  WebRtcServices.instead.#current
+                ].addIceCandidate(candidate);
               }
               if (change.type === 'removed') {
                 WebRtcServices.instead.hangup();
@@ -239,6 +183,33 @@ export class WebRtcServices {
           });
         });
       }
+    }
+  };
+  #setupWebRtc = async () => {
+    if (WebRtcServices.instead) {
+      // lấy luồng stream âm thanh và video
+      const stream = await WebRtcServices.instead.#getStream({isFront: true});
+      if (stream) {
+        // setLocalStream(stream);
+        WebRtcServices.instead.#localStream = stream;
+        WebRtcServices.instead.#connections[
+          WebRtcServices.instead.#current
+        ].addStream(stream);
+      }
+      WebRtcServices.instead.#connections[
+        WebRtcServices.instead.#current
+      ].onaddstream = e => {
+        const _e = e as any;
+        const _stream = _e.stream as MediaStream;
+        console.log('onaddstream _stream', _stream.toURL());
+
+        if (_stream) {
+          // setRemoteStream(_stream);
+          if (WebRtcServices.instead) {
+            WebRtcServices.instead.#RemoteStream = _stream;
+          }
+        }
+      };
     }
   };
   #firestoreCleanUp = async () => {
