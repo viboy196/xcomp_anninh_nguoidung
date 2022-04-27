@@ -23,7 +23,10 @@ import RegisterScreen from '../screens/register';
 // import {addNotification} from '../redux/features/notification/NotificationSlice';
 import {/*useAppDispatch ,*/ useAppSelector} from '../redux/store/hooks';
 
+import firebase from '@react-native-firebase/app';
+import '@react-native-firebase/firestore';
 import VideoTest from '../components/Video';
+import {WebRtcServices} from '../services/WebRtcServices';
 // import {useRef, useState} from 'react';
 
 export default function Navigation({
@@ -49,32 +52,48 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const auth = useAppSelector(state => state.auth);
-  //   const notificationData = useAppSelector(state => state.authNotification);
-  //   const [state, setState] = React.useState(null);
+  React.useEffect(() => {
+    const mReft = firebase.firestore().collection(`user_${auth.stateToken}`);
+    mReft.onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        console.log(
+          'listen StateToken change.type :',
+          change.type,
+          change.doc.data(),
+        );
 
-  //   console.log('notificationData', notificationData.token);
-
-  //   const fetchMyAPI = React.useCallback(
-  //     async (notiToken: string, token: string) => {
-  //       console.log('notification activeApp');
-
-  //       const res = await ActivateApp(notiToken, token);
-  //       if (res.status) {
-  //         console.log('ActivateApp suscess');
-  //       }
-  //     },
-  //     [],
-  //   );
-  //   React.useEffect(() => {
-  //     if (auth.token && notificationData.token) {
-  //       console.log('start active app');
-
-  //       fetchMyAPI(notificationData.token, auth.token);
-  //     }
-  //   }, [notificationData.token, auth.token]);
-
-  // console.log('RootNavigator auth', auth.);
-
+        if (change.type === 'added') {
+          if (WebRtcServices.instead) {
+            WebRtcServices.close();
+          }
+          const data = change.doc.data();
+          console.log('listen ', data.roomId);
+          if (data.roomId) {
+            const webRtc = new WebRtcServices({roomId: data.roomId});
+            webRtc.join().then(() => {
+              console.log('join ok');
+              mReft.get().then(value => {
+                value.forEach(item => {
+                  item.ref.delete().then(() => {
+                    console.log('remove success');
+                  });
+                });
+              });
+            });
+          }
+        }
+      });
+    });
+    return () => {
+      mReft.get().then(value => {
+        value.forEach(item => {
+          item.ref.delete().then(() => {
+            console.log('remove success');
+          });
+        });
+      });
+    };
+  }, [auth.stateToken]);
   return (
     <Stack.Navigator>
       {auth.token === undefined ? (

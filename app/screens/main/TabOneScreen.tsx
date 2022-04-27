@@ -10,7 +10,7 @@ import TienIch from '../../components/TienIch';
 import {tintColorLight} from '../../constants/Colors';
 import ApiRequest from '../../utils/api/Main/ApiRequest';
 import {logOut} from '../../redux/features/auth/authSlices';
-import {WebRtcServices} from '../../services/WebRTCService1';
+import {WebRtcServices} from '../../services/WebRtcServices';
 export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
   // const tag = 'TabOneScreen';
   const {token} = useAppSelector(state => state.auth);

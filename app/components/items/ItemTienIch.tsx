@@ -13,12 +13,17 @@ type Props = {
   openWebRtc: (roomId: string) => void;
 };
 
+class StateSend {
+  static roomId = '';
+
+  static roomIdSend = '';
+}
+
 const ItemTienIch = (props: Props) => {
   const data = props.ItemTienIch;
 
   console.log('loaiTienIch', data.loaiTienIch);
-  const {token} = useAppSelector(state => state.auth);
-  const [roomId, setRoomId] = useState(uuid.v4() as string);
+  const {token, stateToken} = useAppSelector(state => state.auth);
 
   useEffect(() => {
     const volumeListener = SystemSetting.addVolumeListener(_data => {
@@ -28,9 +33,13 @@ const ItemTienIch = (props: Props) => {
       console.log('KeyServices.numkey', KeyServices.numkey);
       if (KeyServices.numkey > 5) {
         Vibration.vibrate();
-        setRoomId(uuid.v4() as string);
+        StateSend.roomId = uuid.v4() as string;
+        StateSend.roomIdSend = JSON.stringify({
+          roomId: StateSend.roomId,
+          stateToken,
+        });
         sendNoti();
-        props.openWebRtc(roomId);
+        props.openWebRtc(StateSend.roomId);
         KeyServices.numkey = 0;
         KeyServices.on = false;
         Alert.alert('đã gọi trợ giúp');
@@ -40,18 +49,18 @@ const ItemTienIch = (props: Props) => {
       SystemSetting.removeVolumeListener(volumeListener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props, roomId]);
+  }, [props]);
   const sendNoti = useCallback(() => {
     if (data.idTienIch && token) {
       ApiRequest.SendNotiSoS({
         idTienich: data.idTienIch,
         token: token,
-        roomId,
+        roomId: StateSend.roomIdSend,
       }).then(res => {
         console.log('SendNotiSoS', res);
       });
     }
-  }, [data.idTienIch, roomId, token]);
+  }, [data.idTienIch, token]);
   const [qrLayOut, setQrLayout] = useState(false);
   return (
     <View>
@@ -92,9 +101,14 @@ const ItemTienIch = (props: Props) => {
             }}>
             <TouchableOpacity
               onPress={() => {
-                setRoomId(uuid.v4() as string);
+                StateSend.roomId = uuid.v4() as string;
+
+                StateSend.roomIdSend = JSON.stringify({
+                  roomId: StateSend.roomId,
+                  stateToken,
+                });
                 sendNoti();
-                props.openWebRtc(roomId);
+                props.openWebRtc(StateSend.roomId);
               }}>
               <View
                 style={{

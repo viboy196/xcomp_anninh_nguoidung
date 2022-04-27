@@ -1,3 +1,4 @@
+import uuid from 'react-native-uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {persistReducer} from 'redux-persist';
@@ -5,6 +6,7 @@ import ApiRequest from '../../../utils/api/Main/ApiRequest';
 
 export type UsersState = {
   token?: string;
+  stateToken?: string;
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   errorMessage?: string;
 };
@@ -43,10 +45,12 @@ const authSlice = createSlice({
         console.log('loginAsync fulfilled', action.payload);
 
         if (action.payload.status === true) {
+          const rd = uuid.v4() as string;
           state = {
             ...state,
             loading: 'succeeded',
             token: action.payload.result,
+            stateToken: rd,
           };
         } else {
           state = {

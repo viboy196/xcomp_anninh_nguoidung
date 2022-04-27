@@ -21,14 +21,6 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
 export default function MainScreen() {
   const colorScheme = useColorScheme();
-  // const numNotSee = useAppSelector(state => state.notification.numNotSee);
-  // const dispatch = useAppDispatch();
-  // const remove = () => {
-  //   console.log('TabTwoScreen remove');
-
-  //   dispatch(removeCountNotifi());
-  // };
-  // console.log('MainScreen', numNotSee);
 
   return (
     <BottomTab.Navigator

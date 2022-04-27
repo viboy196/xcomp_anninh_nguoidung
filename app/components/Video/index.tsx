@@ -1,11 +1,11 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {RTCView} from 'react-native-webrtc';
 import Button from '../items/Button';
 import {View} from '../Themed';
 import {RootStackScreenProps} from '../../navigation/types';
 import IncallManager from 'react-native-incall-manager';
-import {WebRtcServices} from '../../services/WebRTCService1';
+import {WebRtcServices} from '../../services/WebRtcServices';
 // import {Dimensions} from 'react-native';
 // type Props = {
 //   hangup: () => void;
@@ -84,7 +84,7 @@ export default function Video({
   const [volume, setVolume] = useState(false);
   const [mic, setMic] = useState(true);
   const [isVideo, setIsVideo] = useState(true);
-
+  // const [reload, setReload] = useState(false);
   const volumeClick = useCallback(() => {
     let _vo = !volume;
     IncallManager.setSpeakerphoneOn(_vo);
@@ -149,11 +149,17 @@ export default function Video({
           />
         )}
         {isVideo && (
-          <RTCView
-            streamURL={localStream.toURL()}
-            objectFit={'cover'}
-            style={styles.videoLocal}
-          />
+          <TouchableOpacity
+            onPress={() => {
+              localStream.getVideoTracks()[0]._switchCamera();
+            }}
+            style={styles.videoLocal}>
+            <RTCView
+              streamURL={localStream.toURL()}
+              objectFit={'cover'}
+              style={styles.videoLocal}
+            />
+          </TouchableOpacity>
         )}
         <ButtonContainer
           hangup={hangup}

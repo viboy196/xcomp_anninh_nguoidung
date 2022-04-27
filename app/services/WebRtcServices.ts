@@ -21,13 +21,16 @@ const configuration = {
 // const configuration = {iceServers: [{url: 'stun:171.244.133.171:3478'}]};
 export class WebRtcServices {
   static instead?: WebRtcServices;
+  static close = () => {
+    WebRtcServices.instead?.hangup();
+  };
   #localStream?: MediaStream;
   #RemoteStream?: MediaStream;
   #pc: RTCPeerConnection;
   #configuration: any;
   #roomId: string;
   #cRef: FirebaseFirestoreTypes.DocumentReference<FirebaseFirestoreTypes.DocumentData>;
-
+  #countHangup?: number;
   constructor(input: {roomId: string}) {
     this.#roomId = input.roomId;
     this.#configuration = configuration;
@@ -36,6 +39,7 @@ export class WebRtcServices {
       .firestore()
       .collection('meet')
       .doc(`chatID_${this.#roomId}`);
+    this.#countHangup = 1;
 
     WebRtcServices.instead = this;
   }
@@ -101,22 +105,29 @@ export class WebRtcServices {
     }
   };
   hangup = async () => {
+    console.log('hangup');
     if (WebRtcServices.instead) {
+      WebRtcServices.instead.#countHangup = 0;
       WebRtcServices.instead.#pc.close();
 
-      await WebRtcServices.instead.#firestoreCleanUp();
-      if (WebRtcServices.instead.#localStream) {
-        WebRtcServices.instead.#localStream.getTracks().forEach(t => t.stop);
-        WebRtcServices.instead.#localStream.release();
-      }
+      WebRtcServices.instead.#firestoreCleanUp().then(() => {
+        if (WebRtcServices.instead) {
+          if (WebRtcServices.instead.#localStream) {
+            WebRtcServices.instead.#localStream
+              .getTracks()
+              .forEach(t => t.stop);
+            WebRtcServices.instead.#localStream.release();
+          }
 
-      WebRtcServices.instead.#localStream = undefined;
-      WebRtcServices.instead.#RemoteStream = undefined;
+          WebRtcServices.instead.#localStream = undefined;
+          WebRtcServices.instead.#RemoteStream = undefined;
 
-      if (WebRtcServices.instead.#hangupSuccess) {
-        WebRtcServices.instead.#hangupSuccess();
-      }
-      WebRtcServices.instead = undefined;
+          if (WebRtcServices.instead.#hangupSuccess) {
+            WebRtcServices.instead.#hangupSuccess();
+          }
+          WebRtcServices.instead = undefined;
+        }
+      });
     }
   };
   #hangupSuccess?: () => void;
@@ -125,7 +136,7 @@ export class WebRtcServices {
       WebRtcServices.instead.#hangupSuccess = input?.navigate;
     }
   };
-  join = async (input: {success: () => void; failer: () => void}) => {
+  join = async (input?: {success?: () => void; failer?: () => void}) => {
     if (WebRtcServices.instead) {
       console.log('join zoom ....');
       const offer = (await WebRtcServices.instead.#cRef.get()).data()?.offer;
@@ -156,12 +167,18 @@ export class WebRtcServices {
             },
           };
           WebRtcServices.instead.#cRef.update(cWithAnswer);
-          input.success();
+          if (input?.success) {
+            input.success();
+          }
         }
       } else {
         console.log('đầu dây không tồn tại');
-        input.failer();
-        WebRtcServices.instead.hangup();
+
+        WebRtcServices.instead.hangup().then(() => {
+          if (input?.failer) {
+            input.failer();
+          }
+        });
       }
     }
   };
@@ -225,7 +242,7 @@ export class WebRtcServices {
         });
         // get candidate to signal
         mReft.collection(remoteName).onSnapshot(snapshot => {
-          snapshot.docChanges().forEach((change: any) => {
+          snapshot.docChanges().forEach(async (change: any) => {
             console.log('change.type :', change.type, 'remoteName', remoteName);
             if (WebRtcServices.instead) {
               if (change.type === 'added') {
@@ -233,7 +250,10 @@ export class WebRtcServices {
                 WebRtcServices.instead.#pc.addIceCandidate(candidate);
               }
               if (change.type === 'removed') {
-                WebRtcServices.instead.hangup();
+                if (WebRtcServices.instead.#countHangup === 1) {
+                  WebRtcServices.instead.#countHangup = 0;
+                  await WebRtcServices.instead.hangup();
+                }
               }
             }
           });
