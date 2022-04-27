@@ -52,7 +52,9 @@ const Input = (props: {
           style={{
             padding: 5,
             fontSize: 18,
-          }}>
+          }}
+          darkColor="#000"
+          lightColor="#000">
           {title}
         </Text>
         <View
@@ -87,6 +89,7 @@ const Input = (props: {
             style={{
               flex: 1,
               paddingLeft: 10,
+              color: '#000',
             }}
             placeholder={placeholderTitle}
             value={value}
