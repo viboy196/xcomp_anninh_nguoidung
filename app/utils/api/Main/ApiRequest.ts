@@ -15,9 +15,10 @@ const urlGetTienichAnninhByNguoidung =
   '/CongViec/get-list-congviec-by-system-anninh?v=1.0';
 
 const urlGetListNoti = '/Noti/get-list-noti?v=1.0';
-const urlGetTienichByNguoidung = '/TienIch/get-list-tienich-by-nguoidung?v=1.0';
-const urlSendNotiSoS = (idTienIch: string, roomId: string): string => {
-  return `/Noti/SendNoti-SoS?idti=${idTienIch}&roomId=${roomId}&v=1.0`;
+const urlGetTienichByNguoidung =
+  '/TienIch/get-tienich-anninh-by-nguoidung?v=1.0';
+const urlSendNotiSoS = (idti: string, info: string): string => {
+  return `/Noti/SendNoti-SoS?idti=${idti}&info=${info}&v=1.0`;
 };
 
 export default class ApiRequest {
@@ -130,12 +131,12 @@ export default class ApiRequest {
   };
 
   static SendNotiSoS = async (data: {
-    idTienich: string;
-    roomId: string;
+    idti: string;
+    info: string;
     token: string;
   }): Promise<ExcuteResult> => {
     const tag = 'SendNotiSoS';
-    const url = urlSendNotiSoS(data.idTienich, data.roomId);
+    const url = urlSendNotiSoS(data.idti, data.info);
     console.log(`${tag} url:`, url);
 
     const config: AxiosRequestConfig = {

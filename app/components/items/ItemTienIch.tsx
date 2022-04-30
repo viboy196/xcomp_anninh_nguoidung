@@ -51,16 +51,16 @@ const ItemTienIch = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
   const sendNoti = useCallback(() => {
-    if (data.idTienIch && token) {
+    if (data.id && token) {
       ApiRequest.SendNotiSoS({
-        idTienich: data.idTienIch,
+        idti: data.id,
         token: token,
-        roomId: StateSend.roomIdSend,
+        info: StateSend.roomIdSend,
       }).then(res => {
         console.log('SendNotiSoS', res);
       });
     }
-  }, [data.idTienIch, token]);
+  }, [data.id, token]);
   const [qrLayOut, setQrLayout] = useState(false);
   return (
     <View>
@@ -86,8 +86,8 @@ const ItemTienIch = (props: Props) => {
               console.log('QrLayout', qrLayOut);
             }}>
             <View style={{flex: 1, padding: 15}}>
-              <Text>{data.tenNguoiDung}</Text>
-              <Text>Vai trò {data.vaiTroNGuoiDung}</Text>
+              <Text>{data.name}</Text>
+              <Text>Vai trò {data.vaiTroNguoiDung}</Text>
 
               <Text>Địa chỉ : {data.tenDoiTuong}</Text>
             </View>
