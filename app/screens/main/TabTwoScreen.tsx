@@ -34,7 +34,7 @@ import React from 'react';
 
 export default function TabTwoScreen() {
   return (
-    <View>
+    <View style={{backgroundColor: '#fff', flex: 1}}>
       <Text>TabTwoScreen</Text>
     </View>
   );

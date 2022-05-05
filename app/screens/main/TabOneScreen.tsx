@@ -56,6 +56,7 @@ export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
   },
   headerView: {
     height: 60,

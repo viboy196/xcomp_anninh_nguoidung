@@ -92,6 +92,7 @@ const Input = (props: {
               color: '#000',
             }}
             placeholder={placeholderTitle}
+            placeholderTextColor="rgba(0,0,0,0.2)"
             value={value}
             keyboardType={keyboardType}
             secureTextEntry={showPass}
