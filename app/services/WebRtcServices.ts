@@ -8,6 +8,7 @@ import {
 } from 'react-native-webrtc';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/firestore';
+import {KeyServices} from './KeyServices';
 const configuration = {
   iceServers: [
     {urls: ['stun:171.244.133.171:3478']},
@@ -107,6 +108,7 @@ export class WebRtcServices {
   hangup = async () => {
     console.log('hangup');
     if (WebRtcServices.instead) {
+      KeyServices.on = true;
       WebRtcServices.instead.#countHangup = 0;
       WebRtcServices.instead.#pc.close();
 

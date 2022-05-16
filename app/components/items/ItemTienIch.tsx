@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {Text, View} from '../Themed';
 
 import {Alert, StyleSheet, TouchableOpacity, Vibration} from 'react-native';
@@ -27,11 +27,10 @@ const ItemTienIch = (props: Props) => {
 
   useEffect(() => {
     const volumeListener = SystemSetting.addVolumeListener(_data => {
+      console.log('addVolumeListener', _data);
+
       if (KeyServices.on) {
-        KeyServices.numkey += 1;
-      }
-      console.log('KeyServices.numkey', KeyServices.numkey);
-      if (KeyServices.numkey > 5) {
+        console.log('KeyServices.numkey', KeyServices.numkey);
         Vibration.vibrate();
         StateSend.roomId = uuid.v4() as string;
         StateSend.roomIdSend = JSON.stringify({
@@ -51,109 +50,77 @@ const ItemTienIch = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
   const sendNoti = useCallback(() => {
-    if (data.id && token) {
+    if (data.idTienIch && token) {
       ApiRequest.SendNotiSoS({
-        idti: data.id,
+        idti: data.idTienIch,
         token: token,
         info: StateSend.roomIdSend,
       }).then(res => {
         console.log('SendNotiSoS', res);
       });
     }
-  }, [data.id, token]);
-  const [qrLayOut, setQrLayout] = useState(false);
+  }, [data.idTienIch, token]);
   return (
-    <View>
-      <View style={styles.itemView}>
-        <View style={styles.contentView}>
-          {/* <Text style={{ color: "#fff" }}>id Tiện Ích {data.id}</Text> */}
-          <Text style={{color: '#fff'}}>
-            Loại tiện ích : {data.loaiTienIch}
-          </Text>
+    <View style={styles.itemView}>
+      <View style={styles.contentView}>
+        {/* <Text style={{ color: "#fff" }}>id Tiện Ích {data.idTienIch}</Text> */}
+        <Text style={{color: '#fff'}}>Loại tiện ích : {data.loaiTienIch}</Text>
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 10,
+          paddingVertical: 5,
+          borderBottomLeftRadius: 20,
+          borderBottomRightRadius: 20,
+        }}>
+        <View style={{flex: 1, padding: 15}}>
+          <Text>{data.tenNguoiDung}</Text>
+          <Text>Vai trò {data.vaiTroNGuoiDung}</Text>
+
+          <Text>Địa chỉ : {data.tenDoiTuong}</Text>
         </View>
         <View
           style={{
-            flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            borderBottomLeftRadius: 20,
-            borderBottomRightRadius: 20,
+            justifyContent: 'center',
+            marginRight: 10,
           }}>
           <TouchableOpacity
-            onLongPress={() => {
-              setQrLayout(old => !old);
-              console.log('QrLayout', qrLayOut);
-            }}>
-            <View style={{flex: 1, padding: 15}}>
-              <Text>{data.name}</Text>
-              <Text>Vai trò {data.vaiTroNguoiDung}</Text>
+            onPress={() => {
+              StateSend.roomId = uuid.v4() as string;
 
-              <Text>Địa chỉ : {data.tenDoiTuong}</Text>
-            </View>
-          </TouchableOpacity>
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 10,
-              flex: 1,
+              StateSend.roomIdSend = JSON.stringify({
+                roomId: StateSend.roomId,
+                stateToken,
+              });
+              sendNoti();
+              props.openWebRtc(StateSend.roomId);
             }}>
-            <TouchableOpacity
-              onPress={() => {
-                StateSend.roomId = uuid.v4() as string;
-
-                StateSend.roomIdSend = JSON.stringify({
-                  roomId: StateSend.roomId,
-                  stateToken,
-                });
-                sendNoti();
-                props.openWebRtc(StateSend.roomId);
-              }}>
-              <View
-                style={{
-                  width: 60,
-                  height: 60,
-                  borderColor: '#3e3e3e',
-                  borderRadius: 40,
-                  borderWidth: 7,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: 'red',
-                }}>
-                <Text
-                  style={{
-                    color: '#fff',
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                  }}>
-                  SOS
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-      {qrLayOut && (
-        <View
-          style={{
-            flexDirection: 'row',
-          }}>
-          <View style={{flex: 1}} />
-          <TouchableOpacity>
             <View
               style={{
-                height: 40,
-                backgroundColor: 'red',
-                marginRight: 10,
+                width: 60,
+                height: 60,
+                borderColor: '#3e3e3e',
+                borderRadius: 40,
+                borderWidth: 7,
+                alignItems: 'center',
                 justifyContent: 'center',
-                padding: 10,
+                backgroundColor: 'red',
               }}>
-              <Text>Cài đặt thiết bị</Text>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                }}>
+                SOS
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
-      )}
+      </View>
     </View>
   );
 };
