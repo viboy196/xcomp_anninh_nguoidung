@@ -24,7 +24,7 @@ import RegisterScreen from '../screens/register';
 import {/*useAppDispatch ,*/ useAppSelector} from '../redux/store/hooks';
 
 import firebase from '@react-native-firebase/app';
-import '@react-native-firebase/firestore';
+import '@react-native-firebase/database';
 import VideoTest from '../components/Video';
 import {WebRtcServices} from '../services/WebRtcServices';
 // import {useRef, useState} from 'react';
@@ -52,46 +52,33 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const auth = useAppSelector(state => state.auth);
-  React.useEffect(() => {
-    const mReft = firebase.firestore().collection(`user_${auth.stateToken}`);
-    mReft.onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(change => {
-        console.log(
-          'listen StateToken change.type :',
-          change.type,
-          change.doc.data(),
-        );
+  console.log('stateToken', auth.stateToken);
 
-        if (change.type === 'added') {
-          if (WebRtcServices.instead) {
-            WebRtcServices.close();
-          }
-          const data = change.doc.data();
-          console.log('listen ', data.roomId);
-          if (data.roomId) {
-            const webRtc = new WebRtcServices({roomId: data.roomId});
-            webRtc.join().then(() => {
-              console.log('join ok');
-              mReft.get().then(value => {
-                value.forEach(item => {
-                  item.ref.delete().then(() => {
-                    console.log('remove success');
-                  });
-                });
-              });
-            });
-          }
-        }
-      });
+  React.useEffect(() => {
+    const mReft = firebase
+      .database()
+      .ref('user')
+      .child(auth.stateToken ? auth.stateToken : '');
+    mReft.on('child_added', snapshot => {
+      console.log('listen StateToken change.type :', snapshot.val());
+
+      if (WebRtcServices.instead) {
+        WebRtcServices.close();
+      }
+      const data = snapshot.val();
+      console.log('listen ', data.roomId);
+      if (data.roomId) {
+        const webRtc = new WebRtcServices({roomId: data.roomId});
+        webRtc.join().then(() => {
+          console.log('join ok');
+          mReft.remove();
+        });
+      }
     });
     return () => {
-      mReft.get().then(value => {
-        value.forEach(item => {
-          item.ref.delete().then(() => {
-            console.log('remove success');
-          });
-        });
-      });
+      console.log('disconnect mReft');
+      mReft.remove();
+      mReft.onDisconnect();
     };
   }, [auth.stateToken]);
   return (
