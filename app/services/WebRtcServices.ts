@@ -107,11 +107,14 @@ export class WebRtcServices {
         };
 
         WebRtcServices.instead.#cRef.child('offer').set(cWithOffer);
+<<<<<<< HEAD
         input?.success();
       } else {
         if (input?.failer) {
           input?.failer();
         }
+=======
+>>>>>>> 0879288342edc6e91335990be9734db1a13bb655
       }
     }
   };
