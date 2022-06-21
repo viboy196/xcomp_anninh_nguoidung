@@ -9,17 +9,18 @@ import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/database';
 import {FirebaseDatabaseTypes} from '@react-native-firebase/database';
 import {KeyServices} from './KeyServices';
-const configuration = {
-  iceServers: [
-    {urls: ['stun:171.244.133.171:3478']},
-    {
-      username: 'xcomp',
-      credential: 'xcomp',
-      urls: ['turn:171.244.133.171:3478'],
-    },
-  ],
-};
-// const configuration = {iceServers: [{url: 'stun:171.244.133.171:3478'}]};
+// const configuration = {
+//   iceServers: [
+//     {urls: ['stun:171.244.133.171:3478']},
+//     {
+//       username: 'xcomp',
+//       credential: 'xcomp',
+//       urls: ['turn:171.244.133.171:3478'],
+//     },
+//   ],
+// };
+const configuration = {iceServers: [{url: 'stun:stun.l.google.com:19302'}]};
+
 export class WebRtcServices {
   static instead?: WebRtcServices;
   static close = () => {
@@ -32,6 +33,8 @@ export class WebRtcServices {
   #roomId: string;
   #cRef: FirebaseDatabaseTypes.Reference;
   #countHangup?: number;
+
+  updateRemoteStream?: () => void;
   constructor(input: {roomId: string}) {
     this.#roomId = input.roomId;
     this.#configuration = configuration;
@@ -64,6 +67,9 @@ export class WebRtcServices {
           // setRemoteStream(_stream);
           if (WebRtcServices.instead) {
             WebRtcServices.instead.#RemoteStream = _stream;
+            if (WebRtcServices.instead.updateRemoteStream) {
+              WebRtcServices.instead.updateRemoteStream();
+            }
           }
         }
       };
@@ -79,7 +85,7 @@ export class WebRtcServices {
       ? WebRtcServices.instead.#RemoteStream
       : undefined;
   };
-  create = async () => {
+  create = async (input?: {success: () => void; failer?: () => void}) => {
     if (WebRtcServices.instead) {
       console.log('gọi ....');
       await WebRtcServices.instead.#setupWebRtc();
@@ -101,6 +107,11 @@ export class WebRtcServices {
         };
 
         WebRtcServices.instead.#cRef.child('offer').set(cWithOffer);
+        input?.success();
+      } else {
+        if (input?.failer) {
+          input?.failer();
+        }
       }
     }
   };

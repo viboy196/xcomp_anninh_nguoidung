@@ -11,7 +11,9 @@ import {tintColorLight} from '../../constants/Colors';
 import ApiRequest from '../../utils/api/Main/ApiRequest';
 import {logOut} from '../../redux/features/auth/authSlices';
 import {WebRtcServices} from '../../services/WebRtcServices';
-export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
+export default function TabOneScreen({
+  navigation,
+}: RootTabScreenProps<'TabOne'>) {
   // const tag = 'TabOneScreen';
   const {token} = useAppSelector(state => state.auth);
   const [detailUser, setDetailUser] = useState<any>({});
@@ -27,12 +29,19 @@ export default function TabOneScreen({}: RootTabScreenProps<'TabOne'>) {
         });
     }
   }, [dispatch, token]);
-  const openWebRtc = useCallback(async (roomId: string) => {
-    const _webRtcService = new WebRtcServices({
-      roomId,
-    });
-    await _webRtcService.create();
-  }, []);
+
+  const joinVideo = useCallback(async () => {
+    navigation.navigate('CallWebRtc');
+  }, [navigation]);
+  const openWebRtc = useCallback(
+    async (roomId: string) => {
+      const _webRtcService = new WebRtcServices({
+        roomId,
+      });
+      await _webRtcService.create({success: () => joinVideo()});
+    },
+    [joinVideo],
+  );
   return (
     <View style={styles.container}>
       <View style={styles.headerView}>

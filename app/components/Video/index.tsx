@@ -84,7 +84,7 @@ export default function Video({
   const [volume, setVolume] = useState(false);
   const [mic, setMic] = useState(true);
   const [isVideo, setIsVideo] = useState(true);
-  // const [reload, setReload] = useState(false);
+  const [reload, setReload] = useState(false);
   const volumeClick = useCallback(() => {
     let _vo = !volume;
     IncallManager.setSpeakerphoneOn(_vo);
@@ -118,6 +118,7 @@ export default function Video({
   console.log('remoteStream', remoteStream?.toURL());
   useEffect(() => {
     if (WebRtcServices.instead) {
+      WebRtcServices.instead.updateRemoteStream = () => setReload(old => !old);
       WebRtcServices.instead.setHangupSuccess({
         navigate: () => {
           if (navigation.canGoBack()) {
@@ -141,6 +142,7 @@ export default function Video({
   if (localStream && remoteStream) {
     return (
       <View style={styles.container}>
+        {reload && <View />}
         {remoteStream.getVideoTracks()[0].enabled === true && (
           <RTCView
             streamURL={remoteStream.toURL()}
