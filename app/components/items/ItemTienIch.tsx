@@ -31,6 +31,7 @@ const ItemTienIch = (props: Props) => {
 
       if (KeyServices.on) {
         console.log('KeyServices.numkey', KeyServices.numkey);
+        SystemSetting.setVolume(0.5);
         Vibration.vibrate();
         StateSend.roomId = uuid.v4() as string;
         StateSend.roomIdSend = JSON.stringify({
